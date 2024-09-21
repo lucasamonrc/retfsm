@@ -1,79 +1,91 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
 
-type State struct {
-	label     string
-	fromEdges []*Edge
-	toEdges   []*Edge
-}
-
-type Edge struct {
-	label     string
-	fromState *State
-	toState   *State
-}
+	models "github.com/lucasamonrc/regex-to-fsa/models"
+)
 
 func main() {
-	rx := "hello,world"
+	rx := "abc*"
 
-	initial := State{label: "q0", fromEdges: nil, toEdges: make([]*Edge, 0)}
-	current := &initial
-	var temp *State
-	var prev *State
+	graph := models.NewGraph()
+	initial := models.NewNode(0)
 
-	states := []*State{current}
+	graph.AddNode(initial)
+
+	var temp *models.Node
+	var prev *models.Node
+
+	current := initial
 
 	for i, c := range rx {
 		if c == '*' {
 			temp = nil
 			current = prev
-			current.toEdges = current.toEdges[:len(current.toEdges)-1]
-			edge := Edge{label: string(rx[i-1]), fromState: current, toState: current}
-			current.toEdges = append(current.toEdges, &edge)
+
+			graph.PopEdge()
+			graph.PopNode()
+			current.PopOut()
+
+			edge := models.NewEdge(string(rx[i-1]), current, current)
+
+			current.AddOut(edge)
+			current.AddIn(edge)
+
+			graph.AddEdge(edge)
+
 			prev = nil
 			continue
 		}
 
 		if temp == nil {
-			temp = &State{label: "tmp", fromEdges: nil, toEdges: make([]*Edge, 0)}
-			edge := Edge{label: string(c), fromState: current, toState: temp}
-			current.toEdges = append(current.toEdges, &edge)
-			temp.fromEdges = append(temp.fromEdges, &edge)
+			temp = models.NewNode(-1)
+
+			edge := models.NewEdge(string(c), current, temp)
+
+			current.AddOut(edge)
+			temp.AddIn(edge)
+
+			graph.AddEdge(edge)
+			graph.AddNode(temp)
 		} else {
-			current.label = fmt.Sprintf("q%d", i)
-			states = append(states, current)
-			temp = &State{label: "tmp", fromEdges: nil, toEdges: make([]*Edge, 0)}
-			edge := Edge{label: string(c), fromState: current, toState: temp}
-			current.toEdges = append(current.toEdges, &edge)
-			temp.fromEdges = append(temp.fromEdges, &edge)
+			current.Id = i
+			temp = models.NewNode(-1)
+
+			edge := models.NewEdge(string(c), current, temp)
+
+			current.AddOut(edge)
+			temp.AddIn(edge)
+
+			graph.AddEdge(edge)
+			graph.AddNode(temp)
 		}
+
 		prev = current
 		current = temp
 	}
 
 	if (rx[len(rx)-1]) != '*' {
-		current.label = fmt.Sprintf("q%d", len(rx))
-		states = append(states, current)
+		current.Id = len(rx)
 	}
 
-	lastLabel := current.label
-
-	current = &initial
+	lastId := current.Id
+	current = initial
 
 	dotout := fmt.Sprintf(`
 digraph finite_state_machine {
     rankdir=LR;
     size="8,5";
 
-    node [shape = doublecircle]; %s;
+    node [shape = doublecircle]; q%v;
     node [shape = circle];
 
-`, lastLabel)
+`, lastId)
 
-	for _, state := range states {
-		for _, edge := range state.toEdges {
-			dotout += fmt.Sprintf("    %s -> %s [ label = \"%s\" ];\n", edge.fromState.label, edge.toState.label, edge.label)
+	for _, node := range graph.Nodes {
+		for _, edge := range node.Out {
+			dotout += fmt.Sprintf("    q%v -> q%v [ label = \"%s\" ];\n", edge.From.Id, edge.To.Id, edge.Label)
 		}
 	}
 
