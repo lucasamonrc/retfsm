@@ -1,6 +1,9 @@
 package fsm
 
-import "strings"
+import (
+	"fmt"
+	"strings"
+)
 
 type FSM struct {
 	States      []*State
@@ -11,33 +14,57 @@ func NewFSM() *FSM {
 	return &FSM{States: make([]*State, 0), Transitions: make([]*Transition, 0)}
 }
 
-func (g *FSM) AddState(n *State) {
-	g.States = append(g.States, n)
+func (m *FSM) AddState(n *State) {
+	m.States = append(m.States, n)
 }
 
-func (g *FSM) PopState() *State {
-	n := g.States[len(g.States)-1]
-	g.States = g.States[:len(g.States)-1]
+func (m *FSM) PopState() *State {
+	n := m.States[len(m.States)-1]
+	m.States = m.States[:len(m.States)-1]
 	return n
 }
 
-func (g *FSM) AddTransition(e *Transition) {
-	g.Transitions = append(g.Transitions, e)
+func (m *FSM) AddTransition(e *Transition) {
+	m.Transitions = append(m.Transitions, e)
 }
 
-func (g *FSM) PopTransition() *Transition {
-	e := g.Transitions[len(g.Transitions)-1]
-	g.Transitions = g.Transitions[:len(g.Transitions)-1]
+func (m *FSM) PopTransition() *Transition {
+	e := m.Transitions[len(m.Transitions)-1]
+	m.Transitions = m.Transitions[:len(m.Transitions)-1]
 	return e
 }
 
-func (g *FSM) String() string {
+func (m *FSM) String() string {
 	var sb strings.Builder
 
 	sb.WriteString("FSM\n")
-	for _, n := range g.States {
+	for _, n := range m.States {
 		sb.WriteString("--" + n.String() + "\n")
 	}
 
 	return sb.String()
+}
+
+func (m *FSM) ToDOT() string {
+	lastId := m.States[len(m.States)-1].Id
+
+	dot := fmt.Sprintf(`
+digraph finite_state_machine {
+    rankdir=LR;
+    size="8,5";
+
+    node [shape = doublecircle]; q%v;
+    node [shape = circle];
+
+`, lastId)
+
+	for _, state := range m.States {
+		for _, transition := range state.Out {
+			dot += fmt.Sprintf("    q%v -> q%v [ label = \"%s\" ];\n", transition.From.Id, transition.To.Id, transition.Label)
+		}
+	}
+
+	dot += "}"
+
+	return dot
 }

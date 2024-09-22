@@ -3,7 +3,7 @@ package lexer
 import (
 	"testing"
 
-	symbol "github.com/lucasamonrc/regex-to-fsa/symbol"
+	"github.com/lucasamonrc/regex-to-fsa/symbol"
 )
 
 func TestNextSymbol(t *testing.T) {

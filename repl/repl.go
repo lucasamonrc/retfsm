@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"io"
 
-	lexer "github.com/lucasamonrc/regex-to-fsa/lexer"
-	symbol "github.com/lucasamonrc/regex-to-fsa/symbol"
+	"github.com/lucasamonrc/regex-to-fsa/lexer"
+	"github.com/lucasamonrc/regex-to-fsa/parser"
 )
 
 const PROMPT = "regex> "
@@ -25,9 +25,31 @@ func Start(in io.Reader, out io.Writer) {
 
 		line := scanner.Text()
 		l := lexer.NewLexer(line)
+		p := parser.NewParser(l)
 
-		for tok := l.NextSymbol(); tok.Type != symbol.EOF; tok = l.NextSymbol() {
-			fmt.Fprintf(out, "%+v\n", tok)
-		}
+		machine := p.Parse()
+
+		io.WriteString(out, machine.String())
+		io.WriteString(out, "\n")
+		io.WriteString(out, machine.ToDOT())
+		io.WriteString(out, "\n")
+	}
+}
+
+func Debug(in io.Reader, out io.Writer) {
+	line := "ab*c"
+
+	for {
+		fmt.Fprint(out, PROMPT)
+
+		l := lexer.NewLexer(line)
+		p := parser.NewParser(l)
+
+		machine := p.Parse()
+
+		io.WriteString(out, machine.String())
+		io.WriteString(out, "\n")
+		io.WriteString(out, machine.ToDOT())
+		io.WriteString(out, "\n")
 	}
 }
