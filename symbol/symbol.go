@@ -9,15 +9,11 @@ type Symbol struct {
 
 const (
 	ILLEGAL = "ILLEGAL" // Non-alphanumeric characters that are not operators or grouping
+	EOF     = "EOF"     // End of file
 
 	LITERAL = "LITERAL" // Alphanumeric characters
 
 	// Operators
-	KSTAR       = "*" // Kleene star: zero or more
-	KPLUS       = "+" // Kleene plus: one or more
-	ALTERNATION = "|" // Alternation: logical OR
+	KSTAR = "*" // Kleene star: zero or more
 
-	// Grouping
-	LPAREN = "("
-	RPAREN = ")"
 )
