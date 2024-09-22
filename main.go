@@ -3,19 +3,19 @@ package main
 import (
 	"fmt"
 
-	models "github.com/lucasamonrc/regex-to-fsa/models"
+	fsm "github.com/lucasamonrc/regex-to-fsa/fsm"
 )
 
 func main() {
-	rx := "abc*"
+	rx := "ab*c"
 
-	graph := models.NewGraph()
-	initial := models.NewNode(0)
+	machine := fsm.NewFSM()
+	initial := fsm.NewState(0)
 
-	graph.AddNode(initial)
+	machine.AddState(initial)
 
-	var temp *models.Node
-	var prev *models.Node
+	var temp *fsm.State
+	var prev *fsm.State
 
 	current := initial
 
@@ -24,42 +24,42 @@ func main() {
 			temp = nil
 			current = prev
 
-			graph.PopEdge()
-			graph.PopNode()
+			machine.PopTransition()
+			machine.PopState()
 			current.PopOut()
 
-			edge := models.NewEdge(string(rx[i-1]), current, current)
+			transition := fsm.NewTransition(string(rx[i-1]), current, current)
 
-			current.AddOut(edge)
-			current.AddIn(edge)
+			current.AddOut(transition)
+			current.AddIn(transition)
 
-			graph.AddEdge(edge)
+			machine.AddTransition(transition)
 
 			prev = nil
 			continue
 		}
 
 		if temp == nil {
-			temp = models.NewNode(-1)
+			temp = fsm.NewState(-1)
 
-			edge := models.NewEdge(string(c), current, temp)
+			transition := fsm.NewTransition(string(c), current, temp)
 
-			current.AddOut(edge)
-			temp.AddIn(edge)
+			current.AddOut(transition)
+			temp.AddIn(transition)
 
-			graph.AddEdge(edge)
-			graph.AddNode(temp)
+			machine.AddTransition(transition)
+			machine.AddState(temp)
 		} else {
 			current.Id = i
-			temp = models.NewNode(-1)
+			temp = fsm.NewState(-1)
 
-			edge := models.NewEdge(string(c), current, temp)
+			transition := fsm.NewTransition(string(c), current, temp)
 
-			current.AddOut(edge)
-			temp.AddIn(edge)
+			current.AddOut(transition)
+			temp.AddIn(transition)
 
-			graph.AddEdge(edge)
-			graph.AddNode(temp)
+			machine.AddTransition(transition)
+			machine.AddState(temp)
 		}
 
 		prev = current
@@ -83,9 +83,9 @@ digraph finite_state_machine {
 
 `, lastId)
 
-	for _, node := range graph.Nodes {
-		for _, edge := range node.Out {
-			dotout += fmt.Sprintf("    q%v -> q%v [ label = \"%s\" ];\n", edge.From.Id, edge.To.Id, edge.Label)
+	for _, state := range machine.States {
+		for _, transition := range state.Out {
+			dotout += fmt.Sprintf("    q%v -> q%v [ label = \"%s\" ];\n", transition.From.Id, transition.To.Id, transition.Label)
 		}
 	}
 

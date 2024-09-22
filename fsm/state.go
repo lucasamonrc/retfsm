@@ -1,44 +1,44 @@
-package models
+package fsm
 
 import (
 	"fmt"
 	"strings"
 )
 
-type Node struct {
+type State struct {
 	Id  int
-	In  []*Edge
-	Out []*Edge
+	In  []*Transition
+	Out []*Transition
 }
 
-func NewNode(id int) *Node {
-	return &Node{Id: id, In: make([]*Edge, 0), Out: make([]*Edge, 0)}
+func NewState(id int) *State {
+	return &State{Id: id, In: make([]*Transition, 0), Out: make([]*Transition, 0)}
 }
 
-func (n *Node) AddIn(e *Edge) {
+func (n *State) AddIn(e *Transition) {
 	n.In = append(n.In, e)
 }
 
-func (n *Node) PopIn() *Edge {
+func (n *State) PopIn() *Transition {
 	e := n.In[len(n.In)-1]
 	n.In = n.In[:len(n.In)-1]
 	return e
 }
 
-func (n *Node) AddOut(e *Edge) {
+func (n *State) AddOut(e *Transition) {
 	n.Out = append(n.Out, e)
 }
 
-func (n *Node) PopOut() *Edge {
+func (n *State) PopOut() *Transition {
 	e := n.Out[len(n.Out)-1]
 	n.Out = n.Out[:len(n.Out)-1]
 	return e
 }
 
-func (n *Node) String() string {
+func (n *State) String() string {
 	var sb strings.Builder
 
-	sb.WriteString(fmt.Sprintf("Node q%v\n", n.Id))
+	sb.WriteString(fmt.Sprintf("State q%v\n", n.Id))
 	sb.WriteString("Parents:\n")
 	for _, e := range n.In {
 		sb.WriteString(fmt.Sprintf("  q%v --%s-->\n", e.From.Id, e.Label))
