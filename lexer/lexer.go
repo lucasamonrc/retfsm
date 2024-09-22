@@ -19,7 +19,7 @@ func NewLexer(input string) *Lexer {
 	return l
 }
 
-func (l *Lexer) NextToken() symbol.Symbol {
+func (l *Lexer) NextSymbol() symbol.Symbol {
 	var sym symbol.Symbol
 
 	switch l.ch {
