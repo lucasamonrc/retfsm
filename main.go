@@ -12,6 +12,7 @@ import (
 func main() {
 	if len(os.Args) < 2 {
 		repl.Start(os.Stdin, os.Stdout)
+		os.Exit(0)
 	}
 
 	command := os.Args[1]

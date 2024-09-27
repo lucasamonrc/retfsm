@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"io"
+	"strings"
 
 	"github.com/lucasamonrc/retfsm/lexer"
 	"github.com/lucasamonrc/retfsm/parser"
@@ -24,6 +25,8 @@ func Start(in io.Reader, out io.Writer) {
 		}
 
 		line := scanner.Text()
+		line = strings.TrimSpace(line)
+
 		l := lexer.NewLexer(line)
 		p := parser.NewParser(l)
 
