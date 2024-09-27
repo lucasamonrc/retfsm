@@ -6,6 +6,7 @@ import (
 
 	"github.com/lucasamonrc/retfsm/cmd"
 	"github.com/lucasamonrc/retfsm/repl"
+	"github.com/lucasamonrc/retfsm/util"
 )
 
 func main() {
@@ -18,9 +19,11 @@ func main() {
 	switch command {
 	case cmd.Draw:
 		cmd.RunDraw()
-	default:
-		fmt.Fprintf(os.Stderr, "\033[31mError: unknown command \033[4m%v\033[0m\033[0m\n", command)
+	case cmd.Help:
 		cmd.Usage()
+	default:
+		util.LogError(fmt.Sprintf("unknown command %v", command), nil)
+		cmd.UsageFromError()
 		os.Exit(1)
 	}
 }

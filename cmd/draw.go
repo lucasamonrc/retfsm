@@ -8,13 +8,14 @@ import (
 
 	"github.com/lucasamonrc/retfsm/lexer"
 	"github.com/lucasamonrc/retfsm/parser"
+	"github.com/lucasamonrc/retfsm/util"
 )
 
 func RunDraw() {
 	args := os.Args[2:]
 
 	if len(args) == 0 && !isInputRedirected() {
-		fmt.Fprintln(os.Stderr, "\033[31mError: no input provided for draw command\033[0m")
+		util.LogError("no input provided for draw command", nil)
 		os.Exit(1)
 	}
 
@@ -32,8 +33,7 @@ func RunDraw() {
 		stdInput, err := io.ReadAll(os.Stdin)
 
 		if err != nil {
-			fmt.Fprintln(os.Stderr, "\033[31mError: could not read input from stdin\033[0m")
-			fmt.Fprintf(os.Stderr, "\033[31m%v\033[0m\n", err)
+			util.LogError("could not read input from stdin", err)
 			os.Exit(1)
 		}
 
@@ -45,8 +45,7 @@ func RunDraw() {
 			fileContent, err := os.ReadFile(input)
 
 			if err != nil {
-				fmt.Fprintln(os.Stderr, "\033[31mError: could not read file\033[0m")
-				fmt.Fprintf(os.Stderr, "\033[31m%v\033[0m\n", err)
+				util.LogError("could not read file", err)
 				os.Exit(1)
 			}
 
@@ -71,8 +70,7 @@ func RunDraw() {
 	err := os.WriteFile(outputFile, []byte(dot), 0644)
 
 	if err != nil {
-		fmt.Fprintln(os.Stderr, "\033[31mError: could not write output file\033[0m")
-		fmt.Fprintf(os.Stderr, "\033[31m%v\033[0m\n", err)
+		util.LogError("could not write output file", err)
 		os.Exit(1)
 	}
 }
@@ -80,7 +78,7 @@ func RunDraw() {
 func isInputRedirected() bool {
 	info, err := os.Stdin.Stat()
 	if err != nil {
-		fmt.Println("Error checking stdin:", err)
+		util.LogError("could not check stdin", err)
 		os.Exit(1)
 	}
 	return (info.Mode() & os.ModeCharDevice) == 0
