@@ -1,8 +1,12 @@
 package fsm
 
 import (
+	"bytes"
 	"fmt"
 	"strings"
+
+	"github.com/goccy/go-graphviz"
+	"github.com/lucasamonrc/retfsm/util"
 )
 
 type FSM struct {
@@ -45,26 +49,68 @@ func (m *FSM) String() string {
 	return sb.String()
 }
 
-func (m *FSM) ToDOT() string {
-	lastId := m.States[len(m.States)-1].Id
+func (m *FSM) ToBytes(outType graphviz.Format) bytes.Buffer {
+	g := graphviz.New()
+	graph, err := g.Graph()
 
-	dot := fmt.Sprintf(`
-digraph finite_state_machine {
-    rankdir=LR;
-    size="8,5";
-
-    node [shape = doublecircle]; q%v;
-    node [shape = circle];
-
-`, lastId)
-
-	for _, state := range m.States {
-		for _, transition := range state.Out {
-			dot += fmt.Sprintf("    q%v -> q%v [ label = \"%s\" ];\n", transition.From.Id, transition.To.Id, transition.Label)
+	defer func() {
+		if err := graph.Close(); err != nil {
+			util.LogError("could not close graph", err)
 		}
+		g.Close()
+	}()
+
+	if err != nil {
+		util.LogError("could not create graph", err)
 	}
 
-	dot += "}"
+	for _, transition := range m.Transitions {
+		from, err := graph.Node(fmt.Sprintf("q%v", transition.From.Id))
 
-	return dot
+		if err != nil {
+			util.LogError("could not find node", err)
+		}
+
+		if from == nil {
+			from, err = graph.CreateNode(fmt.Sprintf("q%v", transition.From.Id))
+			if err != nil {
+				util.LogError("could not create node", err)
+			}
+			from.SetLabel(fmt.Sprintf("q%v", transition.From.Id))
+			from.SetShape("circle")
+		}
+
+		to, err := graph.Node(fmt.Sprintf("q%v", transition.To.Id))
+
+		if err != nil {
+			util.LogError("could not find node", err)
+		}
+
+		if to == nil {
+			to, err = graph.CreateNode(fmt.Sprintf("q%v", transition.To.Id))
+			if err != nil {
+				util.LogError("could not create node", err)
+			}
+			to.SetLabel(fmt.Sprintf("q%v", transition.To.Id))
+
+			if transition.To.Id == m.States[len(m.States)-1].Id {
+				to.SetShape("doublecircle")
+			} else {
+				to.SetShape("circle")
+			}
+		}
+
+		t, err := graph.CreateEdge(transition.Label, from, to)
+		if err != nil {
+			util.LogError("could not create edge", err)
+		}
+		t.SetLabel(transition.Label)
+	}
+
+	graph.SetRankDir("LR")
+	graph.SetSize(8, 5)
+
+	var buf bytes.Buffer
+	g.Render(graph, outType, &buf)
+	return buf
 }

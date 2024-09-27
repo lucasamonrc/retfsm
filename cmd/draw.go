@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"bytes"
 	"fmt"
 	"io"
 	"os"
@@ -63,7 +64,6 @@ func RunDraw() {
 	p := parser.NewParser(l)
 
 	machine := p.Parse()
-	dot := strings.TrimSpace(machine.ToDOT())
 
 	outputFile := "a.dot"
 
@@ -73,18 +73,23 @@ func RunDraw() {
 		outputFile = args[0]
 	}
 
-	err := os.WriteFile(outputFile, []byte(dot), 0644)
+	var buf bytes.Buffer
+	if strings.HasSuffix(outputFile, ".png") {
+		buf = machine.ToBytes(graphviz.PNG)
+	} else if strings.HasSuffix(outputFile, ".jpg") {
+		buf = machine.ToBytes(graphviz.JPG)
+	} else if strings.HasSuffix(outputFile, ".svg") {
+		buf = machine.ToBytes(graphviz.SVG)
+	} else {
+		buf = machine.ToBytes(graphviz.XDOT)
+		outputFile = outputFile + ".dot"
+	}
+
+	err := os.WriteFile(outputFile, buf.Bytes(), 0644)
 
 	if err != nil {
 		util.LogError("could not write output file", err)
 		os.Exit(1)
-	}
-
-	graph, _ := graphviz.ParseBytes([]byte(dot))
-	g := graphviz.New()
-
-	if err := g.RenderFilename(graph, graphviz.PNG, "out.png"); err != nil {
-		util.LogError("could not render graph", err)
 	}
 }
 

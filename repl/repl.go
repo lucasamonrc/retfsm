@@ -6,6 +6,7 @@ import (
 	"io"
 	"strings"
 
+	"github.com/goccy/go-graphviz"
 	"github.com/lucasamonrc/retfsm/lexer"
 	"github.com/lucasamonrc/retfsm/parser"
 )
@@ -32,9 +33,8 @@ func Start(in io.Reader, out io.Writer) {
 
 		machine := p.Parse()
 
-		io.WriteString(out, machine.String())
-		io.WriteString(out, "\n")
-		io.WriteString(out, machine.ToDOT())
+		output := machine.ToBytes(graphviz.XDOT)
+		io.WriteString(out, output.String())
 		io.WriteString(out, "\n")
 	}
 }
@@ -50,9 +50,8 @@ func Debug(in io.Reader, out io.Writer) {
 
 		machine := p.Parse()
 
-		io.WriteString(out, machine.String())
-		io.WriteString(out, "\n")
-		io.WriteString(out, machine.ToDOT())
+		output := machine.ToBytes(graphviz.XDOT)
+		io.WriteString(out, output.String())
 		io.WriteString(out, "\n")
 	}
 }
