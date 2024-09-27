@@ -1,9 +1,9 @@
 package parser
 
 import (
-	"github.com/lucasamonrc/regex-to-fsm/fsm"
-	"github.com/lucasamonrc/regex-to-fsm/lexer"
-	"github.com/lucasamonrc/regex-to-fsm/symbol"
+	"github.com/lucasamonrc/retfsm/fsm"
+	"github.com/lucasamonrc/retfsm/lexer"
+	"github.com/lucasamonrc/retfsm/symbol"
 )
 
 type Parser struct {

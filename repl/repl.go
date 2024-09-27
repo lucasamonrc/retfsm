@@ -5,11 +5,11 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/lucasamonrc/regex-to-fsm/lexer"
-	"github.com/lucasamonrc/regex-to-fsm/parser"
+	"github.com/lucasamonrc/retfsm/lexer"
+	"github.com/lucasamonrc/retfsm/parser"
 )
 
-const PROMPT = "regex> "
+const PROMPT = "retfsm> "
 
 func Start(in io.Reader, out io.Writer) {
 	scanner := bufio.NewScanner(in)

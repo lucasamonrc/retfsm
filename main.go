@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/lucasamonrc/regex-to-fsm/cmd"
-	"github.com/lucasamonrc/regex-to-fsm/repl"
+	"github.com/lucasamonrc/retfsm/cmd"
+	"github.com/lucasamonrc/retfsm/repl"
 )
 
 func main() {
