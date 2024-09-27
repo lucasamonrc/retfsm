@@ -1,9 +1,13 @@
 package parser
 
 import (
+	"errors"
+	"os"
+
 	"github.com/lucasamonrc/retfsm/fsm"
 	"github.com/lucasamonrc/retfsm/lexer"
 	"github.com/lucasamonrc/retfsm/symbol"
+	"github.com/lucasamonrc/retfsm/util"
 )
 
 type Parser struct {
@@ -45,6 +49,12 @@ func (p *Parser) Parse() *fsm.FSM {
 	current := initial
 
 	for p.nextSymbol(); !p.currentSymbolIs(symbol.EOF); p.nextSymbol() {
+		if p.currentSymbolIs(symbol.ILLEGAL) {
+			err := errors.New(p.currentSymbol.Literal)
+			util.LogError("illegal symbol", err)
+			os.Exit(1)
+		}
+
 		if p.currentSymbolIs(symbol.KSTAR) {
 			tmp = nil
 			current = prev

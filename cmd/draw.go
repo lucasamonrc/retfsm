@@ -82,7 +82,10 @@ func RunDraw() {
 		buf = machine.ToBytes(graphviz.SVG)
 	} else {
 		buf = machine.ToBytes(graphviz.XDOT)
-		outputFile = outputFile + ".dot"
+
+		if outputFile != "a.dot" {
+			outputFile = outputFile + ".dot"
+		}
 	}
 
 	err := os.WriteFile(outputFile, buf.Bytes(), 0644)
