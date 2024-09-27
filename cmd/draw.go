@@ -6,6 +6,7 @@ import (
 	"os"
 	"strings"
 
+	"github.com/goccy/go-graphviz"
 	"github.com/lucasamonrc/retfsm/lexer"
 	"github.com/lucasamonrc/retfsm/parser"
 	"github.com/lucasamonrc/retfsm/util"
@@ -77,6 +78,13 @@ func RunDraw() {
 	if err != nil {
 		util.LogError("could not write output file", err)
 		os.Exit(1)
+	}
+
+	graph, _ := graphviz.ParseBytes([]byte(dot))
+	g := graphviz.New()
+
+	if err := g.RenderFilename(graph, graphviz.PNG, "out.png"); err != nil {
+		util.LogError("could not render graph", err)
 	}
 }
 
