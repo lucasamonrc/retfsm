@@ -3,7 +3,7 @@ package main
 import (
 	"os"
 
-	"github.com/lucasamonrc/regex-to-fsa/repl"
+	"github.com/lucasamonrc/regex-to-fsm/repl"
 )
 
 func main() {

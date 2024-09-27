@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/lucasamonrc/regex-to-fsa/lexer"
-	"github.com/lucasamonrc/regex-to-fsa/parser"
+	"github.com/lucasamonrc/regex-to-fsm/lexer"
+	"github.com/lucasamonrc/regex-to-fsm/parser"
 )
 
 const PROMPT = "regex> "

@@ -3,7 +3,7 @@ package lexer
 import (
 	"unicode"
 
-	"github.com/lucasamonrc/regex-to-fsa/symbol"
+	"github.com/lucasamonrc/regex-to-fsm/symbol"
 )
 
 type Lexer struct {
