@@ -14,22 +14,24 @@ import (
 func RunDraw() {
 	args := os.Args[2:]
 
-	if len(args) == 0 && !isInputRedirected() {
+	isRedirected := isInputRedirected()
+
+	if len(args) == 0 && !isRedirected {
 		util.LogError("no input provided for draw command", nil)
 		os.Exit(1)
 	}
 
-	if args[0] == "help" {
+	if len(args) > 0 && args[0] == "help" {
 		fmt.Println("Usage: retfsm draw <input>")
 		fmt.Println("       retfsm draw <input> <output>")
 		os.Exit(0)
 	}
 
-	output := len(args) == 2
+	output := len(args) == 2 || (len(args) == 1 && isRedirected)
 
 	var input string
 
-	if isInputRedirected() {
+	if isRedirected {
 		stdInput, err := io.ReadAll(os.Stdin)
 
 		if err != nil {
@@ -50,21 +52,24 @@ func RunDraw() {
 			}
 
 			input = string(fileContent)
-		} else {
-			input = strings.Trim(input, `"'`)
 		}
 	}
+
+	input = strings.TrimSpace(input)
+	input = strings.Trim(input, `"'`)
 
 	l := lexer.NewLexer(input)
 	p := parser.NewParser(l)
 
 	machine := p.Parse()
-	dot := strings.TrimLeft(machine.ToDOT(), "\n")
+	dot := strings.TrimSpace(machine.ToDOT())
 
 	outputFile := "a.dot"
 
-	if output {
+	if output && len(args) == 2 {
 		outputFile = args[1]
+	} else if output {
+		outputFile = args[0]
 	}
 
 	err := os.WriteFile(outputFile, []byte(dot), 0644)
