@@ -2,7 +2,7 @@
 
 During my sophomore year in college I took a class called "Discrete Structures". We spent a great deal of the first quarter of that class talking about regular expression and their FSM counterparts. A lot of my homework involved of taking language grammars (usually represented through regular expressions) and converting them to FSM by hand. This tool is a gift to my past self.
 
-`retfsm` is a CLI application that converts regular expression to is Finite State Machine (FSM) graph representation. Output to `.dot`, `.svg`, `.png`, and `.jpg` files. Run `retfsm` as a REPL or as command with `retfsm draw`. Input can be passed by stdin redirection, file, or literal strings. Output, if not specified, defaults to a `.dot` file.
+`retfsm` is a CLI application that converts regular expression to its Finite State Machine (FSM) graph representation. Output to `.dot`, `.svg`, `.png`, and `.jpg` files. Run `retfsm` as a REPL or as command with `retfsm draw`. Input can be passed by stdin redirection, file, or literal strings. Output, if not specified, defaults to a `.dot` file.
 
 ### Example
 
