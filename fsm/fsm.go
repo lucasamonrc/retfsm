@@ -3,6 +3,7 @@ package fsm
 import (
 	"bytes"
 	"fmt"
+	"strconv"
 	"strings"
 
 	"github.com/goccy/go-graphviz"
@@ -36,17 +37,6 @@ func (m *FSM) PopTransition() *Transition {
 	e := m.Transitions[len(m.Transitions)-1]
 	m.Transitions = m.Transitions[:len(m.Transitions)-1]
 	return e
-}
-
-func (m *FSM) String() string {
-	var sb strings.Builder
-
-	sb.WriteString("FSM\n")
-	for _, n := range m.States {
-		sb.WriteString("--" + n.String() + "\n")
-	}
-
-	return sb.String()
 }
 
 func (m *FSM) ToBytes(outType graphviz.Format) bytes.Buffer {
@@ -113,4 +103,93 @@ func (m *FSM) ToBytes(outType graphviz.Format) bytes.Buffer {
 	var buf bytes.Buffer
 	g.Render(graph, outType, &buf)
 	return buf
+}
+
+func (fsm *FSM) String() string {
+	var output strings.Builder
+	visited := make(map[int]bool)
+	currentState := fsm.getStateById(0)
+
+	for {
+		if visited[currentState.Id] {
+			break
+		}
+
+		visited[currentState.Id] = true
+
+		output.WriteString(strconv.Itoa(currentState.Id))
+
+		loopLabels := getLoopLabels(currentState)
+
+		if len(loopLabels) > 0 {
+			output.WriteString("(")
+			output.WriteString(strings.Join(loopLabels, ","))
+			output.WriteString(")")
+		}
+
+		if len(currentState.Out) == 0 || isFinalState(currentState) {
+			outputString := output.String()
+			output.Reset()
+			output.WriteString("[")
+			output.WriteString(outputString)
+			output.WriteString("]")
+			break
+		}
+
+		nonLoopTransitions := getNonLoopTransitions(currentState)
+
+		if len(nonLoopTransitions) == 0 {
+			break
+		}
+
+		transition := nonLoopTransitions[0]
+
+		output.WriteString(" -")
+		output.WriteString(transition.Label)
+		output.WriteString("-> ")
+
+		currentState = transition.To
+
+		if len(currentState.Out) == 0 || isFinalState(currentState) {
+			output.WriteString("[")
+			output.WriteString(strconv.Itoa(currentState.Id))
+			output.WriteString("]")
+			break
+		}
+	}
+
+	return output.String()
+}
+
+func getLoopLabels(state *State) []string {
+	loopLabels := []string{}
+	for _, t := range state.Out {
+		if t.From == state && t.To == state {
+			loopLabels = append(loopLabels, t.Label)
+		}
+	}
+	return loopLabels
+}
+
+func getNonLoopTransitions(state *State) []*Transition {
+	transitions := []*Transition{}
+	for _, t := range state.Out {
+		if t.To != state {
+			transitions = append(transitions, t)
+		}
+	}
+	return transitions
+}
+
+func (fsm *FSM) getStateById(id int) *State {
+	for _, s := range fsm.States {
+		if s.Id == id {
+			return s
+		}
+	}
+	return nil
+}
+
+func isFinalState(state *State) bool {
+	return len(state.Out) == 0
 }

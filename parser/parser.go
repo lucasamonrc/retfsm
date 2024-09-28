@@ -11,15 +11,14 @@ import (
 )
 
 type Parser struct {
-	l      *lexer.Lexer
-	errors []string
+	l *lexer.Lexer
 
 	currentSymbol  symbol.Symbol
 	previousSymbol symbol.Symbol
 }
 
 func NewParser(l *lexer.Lexer) *Parser {
-	return &Parser{l: l, errors: []string{}}
+	return &Parser{l: l}
 
 }
 
@@ -30,10 +29,6 @@ func (p *Parser) nextSymbol() {
 
 func (p *Parser) currentSymbolIs(t symbol.SymbolType) bool {
 	return p.currentSymbol.Type == t
-}
-
-func (p *Parser) Errors() []string {
-	return p.errors
 }
 
 func (p *Parser) Parse() *fsm.FSM {
